@@ -1,4 +1,6 @@
-﻿using MassTransit;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using MassTransit;
 
 class Program
 {
@@ -6,27 +8,34 @@ class Program
     {
         Console.WriteLine(" [*] MassTransitScheduler Started...");
 
-        var busControl = Bus.Factory.CreateUsingRabbitMq(cfg =>
+        var services = new ServiceCollection();
+        services.AddDbContext<OutboxDbContext>(options =>
+            options.UseSqlServer("Server=159.223.59.17,1433;Database=MassTransitDB;User Id=sa;Password=A123231312a@;TrustServerCertificate=True;"));
+
+        services.AddMassTransit(cfg =>
         {
-            cfg.Host("rabbitmq", h =>
+            cfg.UsingRabbitMq((context, cfg) =>
             {
-                h.Username("admin");
-                h.Password("A123231312a@");
+                cfg.Host("rabbitmq", h =>
+                {
+                    h.Username("admin");
+                    h.Password("A123231312a@");
+                });
             });
         });
 
-        await busControl.StartAsync();
-        Console.WriteLine(" [✔] Connected to RabbitMQ");
+        var serviceProvider = services.BuildServiceProvider();
+
+        var dbContext = serviceProvider.GetRequiredService<OutboxDbContext>();
 
         while (true)
         {
             await Task.Delay(TimeSpan.FromHours(1)); // 🔹 Runs every hour
 
-            using var dbContext = new OutboxDbContext();
             var message = new OutboxMessage
             {
                 UserId = "b2e05ec4-6022-4f35-baea-ceb7fa2ee9dd",
-                Message = $"Scheduled Notification at {DateTime.UtcNow}"
+                Message = $"Mass at {DateTime.UtcNow}"
             };
 
             dbContext.OutboxMessages.Add(message);

@@ -1,16 +1,11 @@
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
-public class OutboxDbContext : DbContext
+public class OutboxDbContext(DbContextOptions<OutboxDbContext> options, IBus bus) : DbContext(options)
 {
     public DbSet<OutboxMessage> OutboxMessages { get; set; }
 
-    private readonly IBus _bus;
-
-    public OutboxDbContext(DbContextOptions<OutboxDbContext> options, IBus bus) : base(options)
-    {
-        _bus = bus;
-    }
+    private readonly IBus _bus = bus;
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
