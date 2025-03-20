@@ -1,0 +1,9 @@
+services:
+  rabbitmq_scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rabbitmq_scheduler
+    restart: always
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
