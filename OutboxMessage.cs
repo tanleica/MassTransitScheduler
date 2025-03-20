@@ -1,3 +1,4 @@
+namespace MassTransitScheduler;
 public class OutboxMessage
 {
     public long Id { get; set; }

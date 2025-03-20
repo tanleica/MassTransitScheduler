@@ -7,3 +7,9 @@ services:
     restart: always
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+    networks:
+      - rabbitmq_rabbitmq_network
+
+networks:
+  rabbitmq_rabbitmq_network:
+    external: true  # 🔹 Use the existing RabbitMQ network

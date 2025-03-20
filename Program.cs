@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using MassTransit;
 
+namespace MassTransitScheduler;
 class Program
 {
     static async Task Main()
@@ -16,7 +17,7 @@ class Program
         {
             cfg.UsingRabbitMq((context, cfg) =>
             {
-                cfg.Host("rabbitmq", h =>
+                cfg.Host("159.223.59.17", h =>
                 {
                     h.Username("admin");
                     h.Password("A123231312a@");
@@ -27,6 +28,20 @@ class Program
         var serviceProvider = services.BuildServiceProvider();
 
         var dbContext = serviceProvider.GetRequiredService<OutboxDbContext>();
+
+        #region Test after 2 minutes
+        await Task.Delay(TimeSpan.FromMinutes(2)); // 🔹 Test message
+
+        var testMessage = new OutboxMessage
+        {
+            UserId = "b2e05ec4-6022-4f35-baea-ceb7fa2ee9dd",
+            Message = $"Mass test message at {DateTime.UtcNow}"
+        };
+
+        dbContext.OutboxMessages.Add(testMessage);
+        await dbContext.SaveChangesAsync(); // ✅ Immediately triggers RabbitMQ publishing
+        Console.WriteLine(" [*] MassTransitScheduler saved a test record...");
+        #endregion Test after 2 minutes
 
         while (true)
         {
