@@ -1,9 +1,9 @@
 services:
-  rabbitmq_scheduler:
+  masstransit_scheduler:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: rabbitmq_scheduler
+    container_name: masstransit_scheduler
     restart: always
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
